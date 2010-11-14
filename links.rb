@@ -17,10 +17,8 @@ def parse(verb = 'references')
 
     if l[0] != ' '
       title = l
-    else
-      if l =~ /\s+\(#{verb} (.+)\)\Z/
-        (refs[title] ||= []) << $1
-      end
+    elsif l =~ /\s+\(#{verb} (.+)\)\Z/
+      (refs[title] ||= []) << $1
     end
   end
   refs
