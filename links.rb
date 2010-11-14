@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-def parse(verb = 'references')
+def parse(verb)
   refs = {}
   started = false
   title = nil

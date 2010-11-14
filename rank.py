@@ -3,7 +3,7 @@
 import networkx as nx
 import csv
 import sys
-import pprint
+from pprint import pprint as pp
 
 file = sys.argv[1]
 
@@ -12,14 +12,16 @@ for row in csv.reader(open(file, 'rb'), delimiter='|'):
   for connection in row[1:]:
     G.add_edge(row[0], connection)
 
-#print sorted(nx.degree(G).items(), key=lambda(k,v): (v,k), reverse=True)[0:5]
+def top(nodes, n = 250):
+  return sorted(nodes.items(), key=lambda(k,v): (v,k), reverse=True)[0:n]
+
+# degree
+pp(top(nx.degree(G), 5))
 
 # pagerank
-pprint.pprint(sorted(nx.pagerank(G).items(), key=lambda(k,v): (v,k),
-                     reverse=True)[0:250])
+pp(top(nx.pagerank(G)))
 
-# hits
-#(hubs, authorities) = nx.hits(G)
-#print sorted(hubs.items(), key=lambda(k,v): (v,k), reverse=True)[0:10]
-#print
-#print sorted(authorities.items(), key=lambda(k,v): (v,k), reverse=True)[0:10]
+# HITS
+(hubs, authorities) = nx.hits(G)
+pp(top(hubs, 10))
+pp(top(authorities, 10))
