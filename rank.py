@@ -34,7 +34,7 @@ def write_graph(g, out = sys.stdout):
 
   # add URLs
   for n in (n for n in g.nodes() if g.degree(n) > 0):
-    out.write('%s [URL=%s];\n' % (q(n), q('http://zombo.com')))
+    out.write('%s [URL=%s tooltip=%s];\n' % (q(n), q('http://zombo.com'), q(n)))
 
   # edges
   for (t,s) in g.edges():
