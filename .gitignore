@@ -1,2 +1,4 @@
 pub
 *.csv
+*.dot
+*.svg
