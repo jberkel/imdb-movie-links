@@ -7,9 +7,9 @@ import re
 from pprint import pprint as pp
 
 def unicode_csv_reader(unicode_csv_data, **kwargs):
-    csv_reader = csv.reader(unicode_csv_data, **kwargs)
-    for row in csv_reader:
-      yield [unicode(cell, 'utf-8').encode('utf-8') for cell in row]
+  csv_reader = csv.reader(unicode_csv_data, **kwargs)
+  for row in csv_reader:
+    yield [unicode(cell, 'utf-8').encode('utf-8') for cell in row]
 
 def top(nodes, n = 250):
   return sorted(nodes.items(), key=lambda(k,v): (v,k), reverse=True)[0:n]
@@ -25,12 +25,18 @@ def write_graph(g, out = sys.stdout):
   out.write("strict digraph {\n")
   out.write('rankdir=LR; ranksep=.75; size="10,20"; ratio=auto;\n')
 
+  # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
     out.write("{ rank = same;")
     for n in (n for n in nodes if g.degree(n) > 0):
       out.write(q(n)+';')
     out.write("}\n")
 
+  # add URLs
+  for n in (n for n in g.nodes() if g.degree(n) > 0):
+    out.write('%s [URL=%s];\n' % (q(n), q('http://zombo.com')))
+
+  # edges
   for (t,s) in g.edges():
     out.write('%s -> %s;\n' % (q(s), q(t)))
 
@@ -80,5 +86,3 @@ if __name__ == "__main__":
   elif '--degree' in sys.argv:
     # degree
     pp(top(nx.degree(g), n))
-
-
