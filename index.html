@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=iso-8859-1" />
+<title>SVG example:  scripting SVG from exterior</title>
+
+<script type = "text/javascript" src="http://yui.yahooapis.com/2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js"></script> 
+<script type = "text/javascript" src="http://yui.yahooapis.com/2.8.0r4/build/dragdrop/dragdrop-min.js"></script> 
+
+<!-- Slider source file -->  
+<script type = "text/javascript" src="http://yui.yahooapis.com/2.8.0r4/build/slider/slider-min.js"></script> 
+
+<script type = "text/javascript" src="js/jquery-1.4.4.js"></script> 
+<script type = "text/javascript" src="js/jquery.svg.js"></script> 
+<script type = "text/javascript" src="js/jquery.svgdom.js"></script> 
+<script type = "text/javascript" src="js/SVGPan.js"></script> 
+
+<script type = "text/javascript">
+<!--
+
+var slider; 
+var slider_width = 200;
+var left;
+
+function sliderInit() { 
+    slider = YAHOO.widget.Slider.getHorizSlider("sliderbg", "sliderthumb", 0, slider_width); 
+    slider.subscribe("slideEnd", receive_value);
+    receive_value();
+} 
+
+
+function receive_value() {
+    var abs = slider.getValue();
+// alert(abs);
+    var readout = document.getElementById('readout');
+    var first_threshold = 20 * abs / slider_width;
+    first_threshold = first_threshold.toFixed(1);
+    readout.value = first_threshold + '';
+}
+
+function init() {
+    sliderInit();
+    SVGPan(document.getElementById('map').getSVGDocument());
+}
+//-->
+</script>
+
+
+</head>
+
+<body onload="init();">
+
+<div id = "toprow">
+<!-- <div id = "leftdiv" style = "float:left"> -->
+<div id = "leftdiv" style = "position:absolute;left:0px;top:14px">
+Threshold: 
+<input type = "text" size = "5" id = "readout" disabled = 'disabled'/>
+</div>
+
+
+<div id="sliderbg" style = "position:absolute;left:150px;top:14px;background-color:lightblue;width:216px"> 
+<div id="sliderthumb"><img alt = "thumb-of-slider" src="http://yui.yahooapis.com/2.6.0/build/slider/assets/thumb-n.gif" /></div> 
+</div> 
+</div>
+
+<div style="position:absolute;left:0px; top:60px">
+  <object id="map" type="image/svg+xml" data="graph.svg" width="1000" height="100%"/>
+</div>
+
+</body>
+</html>
