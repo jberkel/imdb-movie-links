@@ -110,6 +110,8 @@
       evt.returnValue = false;
 
       if(state == 'pan') {
+        evt.target.style.cursor = 'move';
+
         $('g.node ellipse', svgDoc).each(function() {
           $(this).attr('fill', 'yellow');
         });
@@ -169,6 +171,8 @@
       if(state == 'pan' || state == 'move') {
         // Quit pan mode
         state = '';
+
+        evt.target.style.cursor = 'auto';
 
         $('g.node ellipse', svgDoc).each(function() {
           $(this).attr('fill', 'none');
