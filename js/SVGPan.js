@@ -8,6 +8,7 @@
            g = svgDoc.getElementById('graph1');
 
     root.removeAttribute('viewBox');
+    //root.setAttribute('viewBox', '0 0 500 500');
     setupHandlers(svgDoc);
 
     /**
