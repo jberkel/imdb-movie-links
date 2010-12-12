@@ -22,8 +22,18 @@ def read_graph(f):
   return g
 
 def write_graph(g, out = sys.stdout):
-  out.write("strict digraph {\n")
-  out.write('rankdir=LR; ranksep=.75; size="10,20"; ratio=auto;\n')
+  out.write("""
+digraph imdb {
+rankdir=RL;
+ranksep=.5;
+size="36,36";
+node  [color=lightblue, style=filled];
+node  [fontname="Verdana", size="30,30"];
+graph [fontname = "Arial", fontsize = 36,
+  style = "bold",
+  label = "\\nIMDB movie links\\n",
+  ssize = "30,60" ];
+""")
 
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
@@ -37,7 +47,7 @@ def write_graph(g, out = sys.stdout):
     out.write('%s [URL=%s tooltip=%s];\n' % (q(n), q('http://zombo.com'), q(n)))
 
   # edges
-  for (t,s) in g.edges():
+  for (s,t) in g.edges():
     out.write('%s -> %s;\n' % (q(s), q(t)))
 
   out.write("}\n")
