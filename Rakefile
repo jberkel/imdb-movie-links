@@ -1,10 +1,11 @@
 require 'uri'
 require 'rake/clean'
+require 'nokogiri'
 references  = 'references.csv'
 imdb_mirror =  URI.parse('ftp://ftp.fu-berlin.de/pub/misc/movies/database/')
 movie_links =  URI.parse(imdb_mirror.to_s + 'movie-links.list.gz')
 
-CLEAN.include(references, 'graph.dot', 'graph.svg')
+CLEAN.include('graph.dot', 'graph.svg', 'temp.svg')
 
 def mirror(uri, verbose = false)
   sh "wget #{verbose ? '-v' : '-q'} -c --no-host-directories -N -r -l 1 --no-remove-listing #{uri}"
@@ -28,9 +29,17 @@ task :rank => references do
 end
 
 file 'graph.dot' => references do
-  sh "./rank.py #{references} --graph --max=#{ENV['MAX'] || 150} > graph.dot"
+  sh "./rank.py #{references} --graph --max=#{ENV['MAX'] || 100} > graph.dot"
 end
 
-file 'graph.svg' => 'graph.dot' do
- sh "dot -Tsvg graph.dot -o graph.svg"
+file 'temp.svg' => 'graph.dot' do
+ sh "dot -Tsvg graph.dot -o temp.svg"
+end
+
+file 'graph.svg' => [ 'temp.svg', file('styles.xml') ] do
+  g = Nokogiri::XML(IO.read('temp.svg'))
+  styles = Nokogiri::XML(IO.read('styles.xml'))
+
+  styles.root.children.each { |c| g.root.add_child(c) }
+  File.open('graph.svg', 'w') { |f| f << g.to_s }
 end

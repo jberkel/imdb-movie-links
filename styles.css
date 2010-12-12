@@ -1,0 +1,10 @@
+html, body,  object {
+    background: red;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    outline: none;
+}

@@ -27,12 +27,9 @@ digraph imdb {
 rankdir=RL;
 ranksep=.5;
 size="36,36";
-node  [color=lightblue, style=filled];
-node  [fontname="Verdana", size="30,30"];
-graph [fontname = "Arial", fontsize = 36,
-  style = "bold",
-  label = "\\nIMDB movie links\\n",
-  ssize = "30,60" ];
+node  [style=filled];
+node  [size="30,30", fontsize = 18];
+graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
 """)
 
   # ranking
