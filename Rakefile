@@ -4,6 +4,7 @@ require 'nokogiri'
 references  = 'references.csv'
 imdb_mirror =  URI.parse('ftp://ftp.fu-berlin.de/pub/misc/movies/database/')
 movie_links =  URI.parse(imdb_mirror.to_s + 'movie-links.list.gz')
+ratings     =  URI.parse(imdb_mirror.to_s + 'ratings.list.gz')
 
 CLEAN.include('graph.dot', 'graph.svg', 'temp.svg')
 
@@ -16,8 +17,8 @@ task :mirror do
   mirror imdb_mirror
 end
 
-file movie_links.path do
-  mirror movie_links
+[movie_links, ratings].each do |f|
+  file(f.path) { mirror f }
 end
 
 file references => movie_links.path do

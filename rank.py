@@ -21,6 +21,16 @@ def read_graph(f):
       g.add_edge(row[0], connection)
   return g
 
+
+def read_top_250(f='top250.txt'):
+  #0000001222   47196   8.0  Hauru no ugoku shiro (2004)
+  top250 = []
+  for row in open(f, 'r'):
+    dist, votes, rating, title = row.split(None, 3)
+    top250.append(title.strip())
+
+  return top250
+
 def write_graph(g, out = sys.stdout):
   out.write("""
 digraph imdb {
@@ -32,6 +42,8 @@ node  [size="30,30", fontsize = 18];
 graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
 """)
 
+  top_250 = read_top_250()
+
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
     out.write("{ rank = same;")
@@ -41,7 +53,17 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
 
   # add URLs
   for n in (n for n in g.nodes() if g.degree(n) > 0):
-    out.write('%s [URL=%s tooltip=%s];\n' % (q(n), q('http://zombo.com'), q(n)))
+    attrs = {}
+    attrs['URL'] = 'http://zombo.com'
+    attrs['tooltip'] = n
+    if n in top_250:
+      attrs['style'] = 'bold'
+      attrs['penwidth'] = 3
+
+    out.write(q(n))
+    out.write(' [')
+    for (k,v) in attrs.items(): out.write('%s=%s' % (k, q(v)))
+    out.write('];\n')
 
   # edges
   for (s,t) in g.edges():
@@ -67,7 +89,7 @@ def sub_graph(g, n, algorithm = nx.pagerank):
   return g.subgraph([v[0] for v in top(algorithm(g), n)])
 
 def q(s):
-  return '"%s"' %  s.replace('"', '\\"')
+  return '"%s"' %  str(s).replace('"', '\\"')
 
 if __name__ == "__main__":
   if len(sys.argv) < 3:
