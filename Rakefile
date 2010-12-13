@@ -22,7 +22,8 @@ end
 end
 
 file references => movie_links.path do
-  sh "zcat < #{movie_links.path} | ./links.rb references"
+  ref = ENV['REF'] || 'references'
+  sh "zcat < #{movie_links.path} | ./links.rb #{ref} > #{references}"
 end
 
 task :rank => references do

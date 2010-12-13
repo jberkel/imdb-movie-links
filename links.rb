@@ -34,10 +34,7 @@ end
 
 if __FILE__ == $0
   type = ARGV[0] || 'references'
-  links = parse(type)
-  File.open("#{type}.csv", 'w') do |f|
-    links.each do |title, refs|
-      f.puts ([title] + refs).map { |s| escape(s) }.join('|')
-    end
+  parse(type).each do |title, refs|
+    puts ([title] + refs).map { |s| escape(s) }.join('|')
   end
 end
