@@ -41,6 +41,9 @@ class ImdbAPI:
   def is_top_250(self,title):
     return title in self.top_250
 
+  def top_250_rank(self, title):
+    return self.top_250.index(title) + 1 if self.is_top_250(title) else None
+
   def find_imdb_id(self, title):
     if title not in self.cache:
       sys.stderr.write("find_imdb_id %s:" % title)

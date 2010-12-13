@@ -45,5 +45,10 @@ file 'graph.svg' => [ 'temp.svg', file('styles.xml') ] do
   styles = Nokogiri::XML(IO.read('styles.xml'))
 
   styles.root.children.each { |c| g.root.add_child(c) }
+
+  #g.search('g.node').each do |node|
+  #  title = node.search('title').text
+  #  end
+  #end
   File.open('graph.svg', 'w') { |f| f << g.to_s }
 end

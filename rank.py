@@ -12,8 +12,20 @@ def unicode_csv_reader(unicode_csv_data, **kwargs):
   for row in csv_reader:
     yield [unicode(cell, 'utf-8').encode('utf-8') for cell in row]
 
-def top(nodes, n = 250):
-  return sorted(nodes.items(), key=lambda(k,v): (v,k), reverse=True)[0:n]
+def top(g, nodes, n = 250):
+  top = sorted(nodes.items(), key=lambda(k,v): (v,k), reverse=True)[0:n]
+  imdb = ImdbAPI()
+  i = 1
+  for (node, score) in top:
+    g.node[node]['rank'] = i
+    g.node[node]['score'] = score
+    if imdb.is_top_250(node):
+      g.node[node]['top_250_rank'] = imdb.top_250_rank(node)
+    g.node[node]['imdb_id'] = imdb.find_imdb_id(node)
+    i += 1
+    imdb.save()
+
+  return top
 
 def read_graph(f):
   g = nx.DiGraph()
@@ -33,7 +45,6 @@ node  [style=filled];
 node  [size="30,30", fontsize = 18];
 graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
 """)
-  imdb = ImdbAPI()
 
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
@@ -45,13 +56,13 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
   # add URLs
   for n in (n for n in g.nodes() if g.degree(n) > 0):
     attrs = {}
-    imdb_id = imdb.find_imdb_id(n)
-    if imdb_id:
-      attrs['URL'] = 'http://imdb.com/title/tt' + imdb_id
-    if imdb.is_top_250(n):
+    if g.node[n]['imdb_id']:
+      attrs['URL'] = 'http://imdb.com/title/tt%s/movieconnections' % g.node[n]['imdb_id']
+    if 'top_250_rank' in g.node[n]:
       attrs['style'] = 'bold'
       attrs['penwidth'] = 4
-    attrs['tooltip'] = n
+    attrs['tooltip'] = "%s Rank: %s IMDB top 250: %s" % (n, g.node[n]['rank'],
+                                     g.node[n]['top_250_rank'] if 'top_250_rank' in g.node[n] else "N/A")
 
     if is_tv_series(n):
       attrs['shape'] = 'octagon'
@@ -60,8 +71,6 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
     out.write(' [')
     for (k,v) in attrs.items(): out.write('%s=%s' % (k, q(v)))
     out.write('];\n')
-
-    imdb.save()
 
   # edges
   for (s,t) in g.edges():
@@ -92,7 +101,7 @@ def group_nodes(nodes):
   return grouped
 
 def sub_graph(g, n, algorithm = nx.pagerank):
-  return g.subgraph([v[0] for v in top(algorithm(g), n)])
+  return g.subgraph([v[0] for v in top(g, algorithm(g), n)])
 
 def remove_long_edges(g, max_edge_distance):
   if max_edge_distance > 0:
