@@ -1,10 +1,8 @@
+# Requires Python >= 2.6
 import sys
-import csv
 import os
 import json
 
-# Requires Python >= 2.6
-# Import the IMDbPY package.
 try:
     import imdb
 except ImportError:
@@ -20,14 +18,16 @@ class ImdbAPI:
 
   def save(self):
     if len(self.cache) > 0:
-      file = open(self.CACHE, 'wb')
+      file = open(self.CACHE, 'w')
       json.dump(self.cache, file, indent = 2)
       file.close()
 
   def load(self):
-    cache = {}
     if os.path.exists(self.CACHE):
       cache = json.load(open(self.CACHE, 'r'))
+    else:
+      cache = {}
+
     return cache
 
   def read_top_250(self, f='top250.txt'):
@@ -84,11 +84,6 @@ class ImdbAPI:
     if results:
       # This is a Movie instance.
       movie = results[0]
-
-      # So far the Movie object only contains basic information like the
-      # title and the year; retrieve main information:
-      #i.update(movie)
-
-      return movie #, imdb_id
+      return movie
     else:
       return None

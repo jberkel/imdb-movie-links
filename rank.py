@@ -59,13 +59,13 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
     if g.node[n]['imdb_id']:
       attrs['URL'] = 'http://imdb.com/title/tt%s/movieconnections' % g.node[n]['imdb_id']
 
-    attrs['tooltip'] = "Rank: %s %s %s" % (g.node[n]['rank'],
+    attrs['tooltip'] = "D: %s Rank: %s %s %s" % (g.node[n]['director'], g.node[n]['rank'],
                    "(IMDB: %s)" % g.node[n]['top_250_rank'] if g.node[n]['top_250_rank'] else "",
                     '"%s"' % g.node[n]['plot_outline'] if g.node[n]['plot_outline'] else "")
 
     out.write(q(n))
     out.write(' [')
-    for (k,v) in attrs.items(): out.write('%s=%s' % (k, q(v)))
+    for (k,v) in attrs.items(): out.write('%s=%s' % (k, q(v).encode('utf-8')))
     out.write('];\n')
 
   # edges
@@ -112,7 +112,7 @@ def remove_long_edges(g, max_edge_distance):
   return g
 
 def q(s):
-  return '"%s"' %  str(s).replace('"', '\\"')
+  return '"%s"' %  s.replace('"', '\\"')
 
 if __name__ == "__main__":
   if len(sys.argv) < 3:

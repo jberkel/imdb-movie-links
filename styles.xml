@@ -17,22 +17,16 @@
           font-family: Arial;
         }
 
-        .node {
-        }
-
         g.node.top250 text {
            font-weight: bold;
         }
 
         g.node.top250 ellipse {
-           //fill: url(#darkgreen);
         }
 
         g.node.tv ellipse {
-           fill: url(#darkgreen);
+           fill: url(#steelblue);
         }
-
-
 
         g.node ellipse, g.node polygon {
            fill: url(#lightblue);
