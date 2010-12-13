@@ -47,7 +47,6 @@ class ImdbAPI:
 
   def find_imdb(self, title):
     title = title.decode('utf-8')
-
     if title not in self.cache:
       sys.stderr.write("find_imdb %s:" % title.encode('utf-8'))
       m = self.find_first(title)
@@ -65,12 +64,12 @@ class ImdbAPI:
           'year': m.get('year'),
           'kind': m.get('kind')
         }
-
+        return self.cache[title]
       else:
         sys.stderr.write("not found\n")
-        self.cache[title] = None
-
-    return self.cache[title]
+        return None
+    else:
+      return self.cache[title]
 
   def find_first(self, title):
     if self.imdb is None: return None

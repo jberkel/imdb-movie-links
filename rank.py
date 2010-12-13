@@ -19,8 +19,10 @@ def top(g, nodes, n = 250):
   for (node, score) in top:
     g.node[node]['rank'] = i
     g.node[node]['score'] = score
-    for (k,v) in imdb.find_imdb(node).items():
-      g.node[node][k] = v
+    meta_data = imdb.find_imdb(node)
+    if meta_data:
+      for (k,v) in meta_data.items():
+        g.node[node][k] = v
 
     i += 1
     imdb.save()
@@ -56,12 +58,16 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
   # add URLs
   for n in (n for n in g.nodes() if g.degree(n) > 0):
     attrs = {}
-    if g.node[n]['imdb_id']:
+    if 'imdb_id' in g.node[n]:
       attrs['URL'] = 'http://imdb.com/title/tt%s/movieconnections' % g.node[n]['imdb_id']
 
-    attrs['tooltip'] = "D: %s, ranked %s %s %s" % (g.node[n]['director'], g.node[n]['rank'],
-                   "(IMDB: %s)" % g.node[n]['top_250_rank'] if g.node[n]['top_250_rank'] else "",
-                    '"%s"' % g.node[n]['plot_outline'] if g.node[n]['plot_outline'] else "")
+    director     = g.node[n]['director'] if 'director' in g.node[n] else "Unknown"
+    top_250_rank = g.node[n]['top_250_rank'] if 'top_250_rank' in g.node[n] else None
+    plot         = g.node[n]['plot_outline'] if 'plot_outline' in g.node[n] else None
+
+    attrs['tooltip'] = "D: %s, ranked %s %s %s" % (director, g.node[n]['rank'],
+                   "(IMDB: %s)" % top_250_rank if top_250_rank else "",
+                    '"%s"' % plot if plot else "")
 
     out.write(q(n))
     out.write(' [')
