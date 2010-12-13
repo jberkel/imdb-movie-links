@@ -1,6 +1,8 @@
 require 'uri'
 require 'rake/clean'
 require 'nokogiri'
+require 'json'
+
 references  = 'references.csv'
 imdb_mirror =  URI.parse('ftp://ftp.fu-berlin.de/pub/misc/movies/database/')
 movie_links =  URI.parse(imdb_mirror.to_s + 'movie-links.list.gz')
@@ -41,14 +43,27 @@ file 'temp.svg' => 'graph.dot' do
 end
 
 file 'graph.svg' => [ 'temp.svg', file('styles.xml') ] do
+  imdb_data = JSON.parse(IO.read('imdb_cache.json'))
+
   g = Nokogiri::XML(IO.read('temp.svg'))
   styles = Nokogiri::XML(IO.read('styles.xml'))
 
   styles.root.children.each { |c| g.root.add_child(c) }
 
-  #g.search('g.node').each do |node|
-  #  title = node.search('title').text
-  #  end
-  #end
+  g.search('g.node').each do |node|
+    title = node.search('title').text
+    _class = ['node']
+    if data = imdb_data[title]
+      case data['kind']
+        when 'tv series'
+          _class << 'tv'
+        when 'movie'
+          _class << 'movie'
+      end
+      _class << 'top250' if data['top_250_rank'].to_i > 0
+
+      node.set_attribute('class', _class.join(' '))
+    end
+  end
   File.open('graph.svg', 'w') { |f| f << g.to_s }
 end

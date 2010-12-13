@@ -20,6 +20,20 @@
         .node {
         }
 
+        g.node.top250 text {
+           font-weight: bold;
+        }
+
+        g.node.top250 ellipse {
+           //fill: url(#darkgreen);
+        }
+
+        g.node.tv ellipse {
+           fill: url(#darkgreen);
+        }
+
+
+
         g.node ellipse, g.node polygon {
            fill: url(#lightblue);
         }

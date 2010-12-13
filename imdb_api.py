@@ -46,8 +46,10 @@ class ImdbAPI:
     return self.top_250.index(title) + 1 if self.is_top_250(title) else None
 
   def find_imdb(self, title):
+    title = title.decode('utf-8')
+
     if title not in self.cache:
-      sys.stderr.write("find_imdb_id %s:" % title)
+      sys.stderr.write("find_imdb %s:" % title.encode('utf-8'))
       m = self.find_first(title)
       if m:
         self.imdb.update(m)
@@ -72,15 +74,11 @@ class ImdbAPI:
 
   def find_first(self, title):
     if self.imdb is None: return None
-
-    in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
-    out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
-
-    title = unicode(title, in_encoding, 'replace')
     try:
         # Do the search, and get the results (a list of Movie objects).
         results = self.imdb.search_movie(title)
     except imdb.IMDbError, e:
+        sys.stderr.write(e)
         return None
 
     if results:

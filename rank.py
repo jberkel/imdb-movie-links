@@ -58,16 +58,10 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
     attrs = {}
     if g.node[n]['imdb_id']:
       attrs['URL'] = 'http://imdb.com/title/tt%s/movieconnections' % g.node[n]['imdb_id']
-    if 'top_250_rank' in g.node[n]:
-      attrs['style'] = 'bold'
-      attrs['penwidth'] = 4
-    attrs['tooltip'] = "%s Rank: %s IMDB top 250: %s Plot: %s" % (n, g.node[n]['rank'],
-                               g.node[n]['top_250_rank'] if 'top_250_rank' in g.node[n] else "N/A",
-                               g.node[n]['plot_outline'])
 
-
-    if is_tv_series(n):
-      attrs['shape'] = 'octagon'
+    attrs['tooltip'] = "Rank: %s %s %s" % (g.node[n]['rank'],
+                   "(IMDB: %s)" % g.node[n]['top_250_rank'] if g.node[n]['top_250_rank'] else "",
+                    '"%s"' % g.node[n]['plot_outline'] if g.node[n]['plot_outline'] else "")
 
     out.write(q(n))
     out.write(' [')
@@ -79,9 +73,6 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
     out.write('%s -> %s;\n' % (q(s), q(t)))
 
   out.write("}\n")
-
-def is_tv_series(node):
-  return '"' in node
 
 def get_decade(node):
   match = re.search(r'\((\d{4})(?:/I)?\)', node)
@@ -100,6 +91,12 @@ def group_nodes(nodes):
       grouped[decade] = []
 
     grouped[decade].append(n)
+
+  for (d, nodes) in grouped.items():
+    if len(nodes) == 1:
+      grouped[d+10].append(nodes[0])
+      del grouped[d]
+
   return grouped
 
 def sub_graph(g, n, algorithm = nx.pagerank):
