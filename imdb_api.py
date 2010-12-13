@@ -19,7 +19,7 @@ class ImdbAPI:
       file = open(name, 'wb')
       writer = csv.writer(file)
       for (k,v) in self.cache.items():
-        writer.writerow([k,v])
+        if v: writer.writerow([k,v])
       file.close()
 
   def load(self, name = 'ids.csv'):
@@ -43,11 +43,14 @@ class ImdbAPI:
 
   def find_imdb_id(self, title):
     if title not in self.cache:
-      sys.stderr.write("find_imdb_id: %s\n" % title)
+      sys.stderr.write("find_imdb_id %s:" % title)
       m = self.find_first(title)
       if m is not None:
+        sys.stderr.write(m.getID())
+        sys.stderr.write("\n")
         self.cache[title] = m.getID()
       else:
+        sys.stderr.write("not found\n")
         self.cache[title] = None
 
     return self.cache[title]

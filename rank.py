@@ -50,8 +50,11 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
       attrs['URL'] = 'http://imdb.com/title/tt' + imdb_id
     if imdb.is_top_250(n):
       attrs['style'] = 'bold'
-      attrs['penwidth'] = 3
+      attrs['penwidth'] = 4
     attrs['tooltip'] = n
+
+    if is_tv_series(n):
+      attrs['shape'] = 'octagon'
 
     out.write(q(n))
     out.write(' [')
@@ -66,12 +69,16 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
 
   out.write("}\n")
 
+def is_tv_series(node):
+  return '"' in node
+
 def get_decade(node):
-  match = re.search(r'\((\d+)(?:/I)?\)$', node)
+  match = re.search(r'\((\d{4})(?:/I)?\)', node)
   if match:
     year = int(match.group(1))
     return year - (year % 10)
   else:
+    sys.stderr.write(node)
     return None
 
 def group_nodes(nodes):
