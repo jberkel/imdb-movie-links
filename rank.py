@@ -59,7 +59,7 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
     if g.node[n]['imdb_id']:
       attrs['URL'] = 'http://imdb.com/title/tt%s/movieconnections' % g.node[n]['imdb_id']
 
-    attrs['tooltip'] = "D: %s Rank: %s %s %s" % (g.node[n]['director'], g.node[n]['rank'],
+    attrs['tooltip'] = "D: %s, ranked %s %s %s" % (g.node[n]['director'], g.node[n]['rank'],
                    "(IMDB: %s)" % g.node[n]['top_250_rank'] if g.node[n]['top_250_rank'] else "",
                     '"%s"' % g.node[n]['plot_outline'] if g.node[n]['plot_outline'] else "")
 
