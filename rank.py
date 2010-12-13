@@ -4,6 +4,7 @@ import networkx as nx
 import csv
 import sys
 import re
+from imdb_api import ImdbAPI
 from pprint import pprint as pp
 
 def unicode_csv_reader(unicode_csv_data, **kwargs):
@@ -22,15 +23,6 @@ def read_graph(f):
   return g
 
 
-def read_top_250(f='top250.txt'):
-  #0000001222   47196   8.0  Hauru no ugoku shiro (2004)
-  top250 = []
-  for row in open(f, 'r'):
-    dist, votes, rating, title = row.split(None, 3)
-    top250.append(title.strip())
-
-  return top250
-
 def write_graph(g, out = sys.stdout):
   out.write("""
 digraph imdb {
@@ -41,8 +33,7 @@ node  [style=filled];
 node  [size="30,30", fontsize = 18];
 graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
 """)
-
-  top_250 = read_top_250()
+  imdb = ImdbAPI()
 
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
@@ -54,9 +45,9 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
   # add URLs
   for n in (n for n in g.nodes() if g.degree(n) > 0):
     attrs = {}
-    attrs['URL'] = 'http://zombo.com'
+    attrs['URL'] = 'http://imdb.com/title/tt' + imdb.find_imdb_id(n)
     attrs['tooltip'] = n
-    if n in top_250:
+    if imdb.is_top_250(n):
       attrs['style'] = 'bold'
       attrs['penwidth'] = 3
 
@@ -65,11 +56,14 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
     for (k,v) in attrs.items(): out.write('%s=%s' % (k, q(v)))
     out.write('];\n')
 
+    imdb.save()
+
   # edges
   for (s,t) in g.edges():
     out.write('%s -> %s;\n' % (q(s), q(t)))
 
   out.write("}\n")
+
 
 
 def group_nodes(nodes):
