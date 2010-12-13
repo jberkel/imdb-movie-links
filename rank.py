@@ -19,9 +19,9 @@ def top(g, nodes, n = 250):
   for (node, score) in top:
     g.node[node]['rank'] = i
     g.node[node]['score'] = score
-    if imdb.is_top_250(node):
-      g.node[node]['top_250_rank'] = imdb.top_250_rank(node)
-    g.node[node]['imdb_id'] = imdb.find_imdb_id(node)
+    for (k,v) in imdb.find_imdb(node).items():
+      g.node[node][k] = v
+
     i += 1
     imdb.save()
 
@@ -61,8 +61,10 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
     if 'top_250_rank' in g.node[n]:
       attrs['style'] = 'bold'
       attrs['penwidth'] = 4
-    attrs['tooltip'] = "%s Rank: %s IMDB top 250: %s" % (n, g.node[n]['rank'],
-                                     g.node[n]['top_250_rank'] if 'top_250_rank' in g.node[n] else "N/A")
+    attrs['tooltip'] = "%s Rank: %s IMDB top 250: %s Plot: %s" % (n, g.node[n]['rank'],
+                               g.node[n]['top_250_rank'] if 'top_250_rank' in g.node[n] else "N/A",
+                               g.node[n]['plot_outline'])
+
 
     if is_tv_series(n):
       attrs['shape'] = 'octagon'

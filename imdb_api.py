@@ -1,7 +1,9 @@
 import sys
 import csv
 import os
+import json
 
+# Requires Python >= 2.6
 # Import the IMDbPY package.
 try:
     import imdb
@@ -9,24 +11,23 @@ except ImportError:
     imdb = None
 
 class ImdbAPI:
+  CACHE = 'imdb_cache.json'
+
   def __init__(self):
     self.cache = ImdbAPI.load(self)
     self.top_250 = ImdbAPI.read_top_250(self)
     if imdb is not None: self.imdb = imdb.IMDb()
 
-  def save(self, name = 'ids.csv'):
+  def save(self):
     if len(self.cache) > 0:
-      file = open(name, 'wb')
-      writer = csv.writer(file)
-      for (k,v) in self.cache.items():
-        if v: writer.writerow([k,v])
+      file = open(self.CACHE, 'wb')
+      json.dump(self.cache, file, indent = 2)
       file.close()
 
-  def load(self, name = 'ids.csv'):
+  def load(self):
     cache = {}
-    if os.path.exists(name):
-      for row in csv.reader(open(name, 'r')):
-        cache[row[0]] = row[1]
+    if os.path.exists(self.CACHE):
+      cache = json.load(open(self.CACHE, 'r'))
     return cache
 
   def read_top_250(self, f='top250.txt'):
@@ -44,14 +45,25 @@ class ImdbAPI:
   def top_250_rank(self, title):
     return self.top_250.index(title) + 1 if self.is_top_250(title) else None
 
-  def find_imdb_id(self, title):
+  def find_imdb(self, title):
     if title not in self.cache:
       sys.stderr.write("find_imdb_id %s:" % title)
       m = self.find_first(title)
-      if m is not None:
+      if m:
+        self.imdb.update(m)
         sys.stderr.write(m.getID())
         sys.stderr.write("\n")
-        self.cache[title] = m.getID()
+
+        self.cache[title] = {
+          'imdb_id': m.getID(),
+          'rating': m.get('rating'),
+          'plot_outline': m.get('plot outline'),
+          'director': m.get('director')[0].get('name'),
+          'top_250_rank': m.get('top 250 rank'),
+          'year': m.get('year'),
+          'kind': m.get('kind')
+        }
+
       else:
         sys.stderr.write("not found\n")
         self.cache[title] = None
