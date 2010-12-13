@@ -42,8 +42,8 @@ class ImdbAPI:
     return title in self.top_250
 
   def find_imdb_id(self, title):
-    sys.stderr.write("find_imdb_id: %s\n" % title)
     if title not in self.cache:
+      sys.stderr.write("find_imdb_id: %s\n" % title)
       m = self.find_first(title)
       if m is not None:
         self.cache[title] = m.getID()

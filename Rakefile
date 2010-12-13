@@ -30,7 +30,9 @@ task :rank => references do
 end
 
 file 'graph.dot' => references do
-  sh "./rank.py #{references} --graph --max=#{ENV['MAX'] || 100} > graph.dot"
+  max = ENV['MAX'] || 100
+  max_edge = ENV['MAX_EDGE'] || -1
+  sh "./rank.py #{references} --graph --max-edge-distance=#{max_edge} --max=#{max} > graph.dot"
 end
 
 file 'temp.svg' => 'graph.dot' do

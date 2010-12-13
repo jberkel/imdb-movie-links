@@ -23,7 +23,7 @@ def read_graph(f):
   return g
 
 
-def write_graph(g, out = sys.stdout):
+def write_graph(g, out = sys.stdout, max_edge_distance=-1):
   out.write("""
 digraph imdb {
 rankdir=RL;
@@ -45,11 +45,13 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
   # add URLs
   for n in (n for n in g.nodes() if g.degree(n) > 0):
     attrs = {}
-    attrs['URL'] = 'http://imdb.com/title/tt' + imdb.find_imdb_id(n)
-    attrs['tooltip'] = n
+    imdb_id = imdb.find_imdb_id(n)
+    if imdb_id:
+      attrs['URL'] = 'http://imdb.com/title/tt' + imdb_id
     if imdb.is_top_250(n):
       attrs['style'] = 'bold'
       attrs['penwidth'] = 3
+    attrs['tooltip'] = n
 
     out.write(q(n))
     out.write(' [')
@@ -64,23 +66,35 @@ graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
 
   out.write("}\n")
 
-
+def get_decade(node):
+  match = re.search(r'\((\d+)(?:/I)?\)$', node)
+  if match:
+    year = int(match.group(1))
+    return year - (year % 10)
+  else:
+    return None
 
 def group_nodes(nodes):
   grouped = {}
   for n in nodes:
-    match = re.search(r'\((\d+)\)$', n)
-    if match:
-      year = int(match.group(1))
-      decade = year - (year % 10)
-      if not decade in grouped:
-        grouped[decade] = []
+    decade = get_decade(n)
+    if not decade in grouped:
+      grouped[decade] = []
 
-      grouped[decade].append(n)
+    grouped[decade].append(n)
   return grouped
 
 def sub_graph(g, n, algorithm = nx.pagerank):
   return g.subgraph([v[0] for v in top(algorithm(g), n)])
+
+def remove_long_edges(g, max_edge_distance):
+  if max_edge_distance > 0:
+    for (s,t) in g.edges():
+      distance = get_decade(s) - get_decade(t)
+      if distance > max_edge_distance:
+        g.remove_edge(s,t)
+
+  return g
 
 def q(s):
   return '"%s"' %  str(s).replace('"', '\\"')
@@ -90,15 +104,19 @@ if __name__ == "__main__":
     print __file__, "<file> [--graph|--rank|--hits|--degree] [--max=<n>]"
     sys.exit(1)
 
-  n = 200
+  n = 100
+  max_edge_distance = -1
   for arg in sys.argv:
     m = re.match(r'--max=(\d+)', arg)
     if m: n = int(m.group(1))
 
+    m = re.match(r'--max-edge-distance=(\d+)', arg)
+    if m: max_edge_distance = int(m.group(1))
+
   g = read_graph(sys.argv[1])
   if '--graph' in sys.argv:
     sub = sub_graph(g, n)
-    write_graph(sub)
+    write_graph(remove_long_edges(sub, max_edge_distance))
   elif '--rank' in sys.argv:
     pp(top(nx.pagerank(g)))
   elif '--hits' in sys.argv:
