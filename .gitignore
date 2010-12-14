@@ -3,4 +3,5 @@ pub
 *.dot
 *.svg
 *.pyc
+.bundle
 imdb_cache.json
