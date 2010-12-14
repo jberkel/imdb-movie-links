@@ -45,7 +45,7 @@ ranksep=.5;
 size="36,36";
 node  [style=filled];
 node  [size="30,30", fontsize = 18];
-graph [ fontsize = 40, label = "\\n\\nIMDB movie connections\\n\\nThis graph shows connections between movies,\\nbold titles are listed in the IMDB Top 250.\\n\\nVisit http://zegoggl.es/blogpost for more information." ]; """)
+graph [ fontsize = 40, label = "\\n\\nIMDB movie connections\\n\\nThis graph shows connections between movies,\\nbold titles are listed in the IMDB Top 250.\\n\\nVisit http://zegoggl.es/2010/12/link-analysis-of-imdb-movie-connections for more information." ]; """)
 
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
@@ -60,10 +60,10 @@ graph [ fontsize = 40, label = "\\n\\nIMDB movie connections\\n\\nThis graph sho
     if 'imdb_id' in g.node[n]:
       attrs['URL'] = 'http://imdb.com/title/tt%s/movieconnections' % g.node[n]['imdb_id']
 
-    director     = g.node[n]['director'] if 'director' in g.node[n] else "Unknown"
-    top_250_rank = g.node[n]['top_250_rank'] if 'top_250_rank' in g.node[n] else None
-    plot         = g.node[n]['plot_outline'] if 'plot_outline' in g.node[n] else None
-    rating       = g.node[n]['rating'] if 'rating' in g.node[n] else None
+    director     = g.node[n].get('director', "Unknown")
+    top_250_rank = g.node[n].get('top_250_rank')
+    plot         = g.node[n].get('plot_outline')
+    rating       = g.node[n].get('rating')
 
     attrs['tooltip'] = "D: %s, rank %s %s %s" % (director, g.node[n]['rank'],
                    "(IMDB: %.1f%s)" %
@@ -139,13 +139,19 @@ if __name__ == "__main__":
   if '--graph' in sys.argv:
     sub = sub_graph(g, n)
     write_graph(remove_long_edges(sub, max_edge_distance))
-  elif '--rank' in sys.argv:
-    pp(top(nx.pagerank(g)))
+  elif '--pagerank' in sys.argv:
+    writer = csv.writer(sys.stdout)
+
+    keys = ['rank', 'top_250_rank', 'kind', 'imdb_id', 'rating', 'director']
+    writer.writerow(['name'] + keys)
+    for (node, score) in top(g, nx.pagerank(g)):
+      writer.writerow([node] +  [unicode(g.node[node].get(k, '')).encode('utf-8') for k in keys])
+
   elif '--hits' in sys.argv:
     # HITS
     (hubs, authorities) = nx.hits(g)
-    pp(top(hubs, n))
-    pp(top(authorities, n))
+    pp(top(g, hubs, n))
+    pp(top(g, authorities, n))
   elif '--degree' in sys.argv:
     # degree
-    pp(top(nx.degree(g), n))
+    pp(top(g, nx.degree(g), n))

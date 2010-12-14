@@ -29,7 +29,7 @@ file references => movie_links.path do
 end
 
 task :rank => references do
-  sh "./rank.py #{references} --rank"
+  sh "./rank.py #{references} --pagerank"
 end
 
 file 'graph.dot' => references do
