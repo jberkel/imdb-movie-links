@@ -65,7 +65,7 @@ graph [ fontsize = 40, label = "\\n\\nIMDB movie connections\\n\\nThis graph sho
     plot         = g.node[n]['plot_outline'] if 'plot_outline' in g.node[n] else None
     rating       = g.node[n]['rating'] if 'rating' in g.node[n] else None
 
-    attrs['tooltip'] = "D: %s, ranked %s %s %s" % (director, g.node[n]['rank'],
+    attrs['tooltip'] = "D: %s, rank %s %s %s" % (director, g.node[n]['rank'],
                    "(IMDB: %.1f%s)" %
                     (rating, " #%s" % top_250_rank if top_250_rank else "") if rating else "",
                     '"%s"' % plot if plot else "")
