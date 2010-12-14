@@ -48,8 +48,10 @@ file 'graph.svg' => [ 'temp.svg', file('styles.xml') ] do
   g = Nokogiri::XML(IO.read('temp.svg'))
   styles = Nokogiri::XML(IO.read('styles.xml'))
 
+  # merge stylesheet
   styles.root.children.each { |c| g.root.add_child(c) }
 
+  # add node metadata
   g.search('g.node').each do |node|
     title = node.search('title').text
     _class = ['node']
@@ -63,6 +65,16 @@ file 'graph.svg' => [ 'temp.svg', file('styles.xml') ] do
       _class << 'top250' if data['top_250_rank'].to_i > 0
 
       node.set_attribute('class', _class.join(' '))
+    end
+  end
+
+  # linkify text
+  g.search('text').each do |text|
+    if text.text =~ %r{(http://[^\s]+)}
+      link = Nokogiri::XML::Node.new("a", g)
+      link.set_attribute("xlink:href", $1)
+      link.add_child(text.clone)
+      text.replace(link)
     end
   end
   File.open('graph.svg', 'w') { |f| f << g.to_s }

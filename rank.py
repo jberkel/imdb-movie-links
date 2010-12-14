@@ -39,14 +39,13 @@ def read_graph(f):
 
 def write_graph(g, out = sys.stdout, max_edge_distance=-1):
   out.write("""
-digraph imdb {
+digraph IMDB_movie_connections {
 rankdir=RL;
 ranksep=.5;
 size="36,36";
 node  [style=filled];
 node  [size="30,30", fontsize = 18];
-graph [ label = "\\n\\nIMDB movie links\\n", ssize = "30,60" ];
-""")
+graph [ fontsize = 40, label = "\\n\\nIMDB movie connections\\n\\nThis graph shows connections between movies,\\nbold titles are listed in the IMDB Top 250.\\n\\nVisit http://zegoggl.es/blogpost for more information." ]; """)
 
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():

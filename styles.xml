@@ -13,7 +13,7 @@
         }
 
         g.graph>text {
-          font-size: 5em;
+          font-size: 36pt;
           font-family: Arial;
         }
 
