@@ -4,6 +4,7 @@ import networkx as nx
 import csv
 import sys
 import re
+import time
 from imdb_api import ImdbAPI
 from pprint import pprint as pp
 
@@ -12,20 +13,25 @@ def unicode_csv_reader(unicode_csv_data, **kwargs):
   for row in csv_reader:
     yield [unicode(cell, 'utf-8').encode('utf-8') for cell in row]
 
-def top(g, nodes, n = 250):
+def top(g, nodes, n = 250, add_meta_data = False):
   top = sorted(nodes.items(), key=lambda(k,v): (v,k), reverse=True)[0:n]
   imdb = ImdbAPI()
   i = 1
   for (node, score) in top:
     g.node[node]['rank'] = i
     g.node[node]['score'] = score
-    meta_data = imdb.find_imdb(node)
-    if meta_data:
-      for (k,v) in meta_data.items():
-        g.node[node][k] = v
+    if add_meta_data:
+      data = imdb.find_imdb(node)
+      if data:
+        for (k,v) in data.items():
+          g.node[node][k] = v
+
+      time.sleep(0.5) # don't get banned by IMDB
+      imdb.save()
+    else:
+      g.node[node]['title'] = node.decode('utf-8')
 
     i += 1
-    imdb.save()
 
   return top
 
@@ -45,7 +51,7 @@ ranksep=.5;
 size="36,36";
 node  [style=filled];
 node  [size="30,30", fontsize = 18];
-graph [ fontsize = 40, label = "\\n\\nIMDB movie connections\\n\\nThis graph shows connections between movies,\\nbold titles are listed in the IMDB Top 250.\\n\\nVisit http://zegoggl.es/2010/12/link-analysis-of-imdb-movie-connections for more information." ]; """)
+graph [ fontsize = 44, label = "\\n\\nPageRank + IMDB movie connections\\n\\nThis graph shows connections between movies,\\nbold titles = IMDB Top 250, grey = TV series.\\n\\nBlog post: http://zegoggl.es/2010/12/link-analysis-of-imdb-movie-connections" ]; """)
 
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
@@ -106,9 +112,6 @@ def group_nodes(nodes):
 
   return grouped
 
-def sub_graph(g, n, algorithm = nx.pagerank):
-  return g.subgraph([v[0] for v in top(g, algorithm(g), n)])
-
 def remove_long_edges(g, max_edge_distance):
   if max_edge_distance > 0:
     for (s,t) in g.edges():
@@ -123,35 +126,37 @@ def q(s):
 
 if __name__ == "__main__":
   if len(sys.argv) < 3:
-    print __file__, "<file> [--graph|--rank|--hits|--degree] [--max=<n>]"
+    print __file__, "<file> [--graph|--rank|--hits|--degree] [--max=<n>] [--meta-data]"
     sys.exit(1)
 
   n = 100
   max_edge_distance = -1
+  meta_data = True
   for arg in sys.argv:
     m = re.match(r'--max=(\d+)', arg)
     if m: n = int(m.group(1))
-
     m = re.match(r'--max-edge-distance=(\d+)', arg)
     if m: max_edge_distance = int(m.group(1))
+    if arg == '--no-meta-data': meta_data = False
 
   g = read_graph(sys.argv[1])
   if '--graph' in sys.argv:
-    sub = sub_graph(g, n)
+    sub = g.subgraph([v[0] for v in top(g, nx.pagerank(g), n, add_meta_data = meta_data)])
     write_graph(remove_long_edges(sub, max_edge_distance))
   elif '--pagerank' in sys.argv:
     writer = csv.writer(sys.stdout)
 
-    keys = ['rank', 'top_250_rank', 'kind', 'imdb_id', 'rating', 'director']
-    writer.writerow(['name'] + keys)
-    for (node, score) in top(g, nx.pagerank(g)):
-      writer.writerow([node] +  [unicode(g.node[node].get(k, '')).encode('utf-8') for k in keys])
+    keys = ['title', 'rank', 'top_250_rank', 'year', 'kind', 'imdb_id', 'rating', 'genre', 'director']
+    writer.writerow(keys)
+    xunicode = lambda s: unicode(s).encode('utf-8') if s else ""
+    for (node, score) in top(g, nx.pagerank(g), add_meta_data = meta_data):
+      writer.writerow([xunicode(g.node[node].get(k, '')) for k in keys])
 
   elif '--hits' in sys.argv:
     # HITS
     (hubs, authorities) = nx.hits(g)
-    pp(top(g, hubs, n))
-    pp(top(g, authorities, n))
+    pp(top(g, hubs, n, meta_data))
+    pp(top(g, authorities, n, meta_data))
   elif '--degree' in sys.argv:
     # degree
-    pp(top(g, nx.degree(g), n))
+    pp(top(g, nx.degree(g), n, meta_data))

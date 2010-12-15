@@ -57,12 +57,14 @@ class ImdbAPI:
 
         self.cache[title] = {
           'imdb_id': m.getID(),
+          'title': m.get('title'),
           'rating': m.get('rating'),
           'plot_outline': m.get('plot outline'),
           'director': m.get('director')[0].get('name'),
           'top_250_rank': m.get('top 250 rank'),
           'year': m.get('year'),
-          'kind': m.get('kind')
+          'kind': m.get('kind'),
+          'genre': ', '.join(m.get('genre', ''))
         }
         return self.cache[title]
       else:

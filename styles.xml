@@ -4,7 +4,7 @@
   <style type="text/css">
       <![CDATA[
         text {
-          font-family: Verdana;
+          font-family: Georgia;
         }
 
         g.node text {
@@ -14,22 +14,22 @@
 
         g.graph>text {
           font-size: 36pt;
-          font-family: Arial;
+        }
+
+        g.graph>a text {
+          font-size: 22pt;
         }
 
         g.node.top250 text {
-           font-weight: bold;
-        }
-
-        g.node.top250 ellipse {
+          font-weight: bold;
         }
 
         g.node.tv ellipse {
-           fill: url(#steelblue);
+          fill: url(#lightgrey);
         }
 
         g.node ellipse, g.node polygon {
-           fill: url(#lightblue);
+          fill: url(#lightblue);
         }
       ]]>
   </style>
