@@ -4,8 +4,8 @@ Code for the blog post: [Link analysis of IMDB movie connections][]
 
 ## Credits
 
-Use the [NetworkX][] python library, Copyright (C) 2004-2010, NetworkX
-Developers and [IMDbPY][].
+ * [NetworkX][] python library, Copyright (C) 2004-2010, NetworkX
+ * [IMDbPY][]
 
 ## License
 
