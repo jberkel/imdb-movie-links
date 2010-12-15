@@ -17,7 +17,7 @@
         }
 
         g.graph>a text {
-          font-size: 22pt;
+          font-size: 30pt;
         }
 
         g.node.top250 text {

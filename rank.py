@@ -50,8 +50,8 @@ rankdir=RL;
 ranksep=.5;
 size="36,36";
 node  [style=filled];
-node  [size="30,30", fontsize = 18];
-graph [ fontsize = 44, label = "\\n\\nPageRank + IMDB movie connections\\n\\nThis graph shows connections between movies,\\nbold titles = IMDB Top 250, grey = TV series.\\n\\nBlog post: http://zegoggl.es/2010/12/link-analysis-of-imdb-movie-connections" ]; """)
+node  [size="30,30", fontsize = 21];
+graph [ fontsize = 44, label = "\\n\\nPageRank + IMDB movie connections\\n\\nThis graph shows references between movies, the node size indicates the rank.\\nClick on a film to see the references on IMDB.\\n\\nbold titles = IMDB Top 250, grey = TV series.\\n\\nBlog post: http://zegoggl.es/2010/12/link-analysis-of-imdb-movie-connections" ]; """)
 
   # ranking
   for (y, nodes) in group_nodes(g.nodes()).items():
@@ -61,6 +61,7 @@ graph [ fontsize = 44, label = "\\n\\nPageRank + IMDB movie connections\\n\\nThi
     out.write("}\n")
 
   # add URLs
+  num_nodes = len(g.nodes())
   for n in (n for n in g.nodes() if g.degree(n) > 0):
     attrs = {}
     if 'imdb_id' in g.node[n]:
@@ -70,6 +71,8 @@ graph [ fontsize = 44, label = "\\n\\nPageRank + IMDB movie connections\\n\\nThi
     top_250_rank = g.node[n].get('top_250_rank')
     plot         = g.node[n].get('plot_outline')
     rating       = g.node[n].get('rating')
+
+    attrs['height'] = str(( num_nodes - g.node[n].get('rank') ) / float(num_nodes) * 1.5 + 0.2)
 
     attrs['tooltip'] = "D: %s, rank %s %s %s" % (director, g.node[n]['rank'],
                    "(IMDB: %.1f%s)" %
