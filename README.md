@@ -2,10 +2,20 @@
 
 Code for the blog post: [Link analysis of IMDB movie connections][]
 
+## Usage
+
+    $ git clone git://github.com/jberkel/imdb-movie-links.git
+    $ cd imdb-movie-links
+    $ easy_install networkx imdbpy
+    $ brew install graphviz wget   # OSX/homebrew
+    $ bundle install
+    $ rake rank                    # CSV export ranking
+    $ rake graph.svg MAX=50        # create a graph, max. 50 nodes
+
 ## Credits
 
-Use the [NetworkX][] python library, Copyright (C) 2004-2010, NetworkX
-Developers and [IMDbPY][].
+ * [NetworkX][] python library, Copyright (C) 2004-2010, NetworkX
+ * [IMDbPY][]
 
 ## License
 
