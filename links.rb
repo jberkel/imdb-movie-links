@@ -15,7 +15,7 @@ def parse(verb)
        next
     end
 
-    if l[0] != ' '
+    if l[0..0] != ' '
       title = l
     elsif l =~ /\s+\(#{verb} (.+)\)\Z/
       (refs[title] ||= []) << $1
@@ -33,6 +33,10 @@ def escape(s)
 end
 
 if __FILE__ == $0
+  if RUBY_VERSION.to_f < 1.9
+    raise "Ruby 1.9 required"
+  end
+
   type = ARGV[0] || 'references'
   parse(type).each do |title, refs|
     puts ([title] + refs).map { |s| escape(s) }.join('|')
